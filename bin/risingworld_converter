@@ -1,0 +1,83 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+use Path::Tiny;
+use Carp qw( croak );
+use DDP;
+use RisingWorld::DB;
+
+my ( $dir, $connect, $user, $pass, $db ) = @ARGV;
+
+croak "Can't find directory ".$dir unless -d $dir;
+
+croak "Missing connect infos" unless $connect && $user && $db;
+
+my ( $ip, $port ) = split(':',$connect);
+
+my $target = RisingWorld::DB->connect(
+  'dbi:mysql:database='.$db.';host='.$ip.( $port ? ';port='.$port : '' ),
+  $user, $pass, {
+    AutoCommit => 1,
+    RaiseError => 1,
+    quote_char => '`',
+    name_sep   => '.',
+  }
+);
+
+$target->deploy;
+
+my %mapping = qw(
+  GrowingPlants  GrowingPlant
+  Chunks         Chunk
+  Chests         Chest
+  WorldInfos     WorldInfo
+  Player         Player
+  Inventory      Inventory
+  Npc            Npc
+  Furnaces       Furnace
+  ChunkAdditions ChunkAddition
+  LODChunks      Lodchunk
+  Worldchunks    Worldchunk
+  Banlist        Banlist
+); 
+
+path($dir)->visit(sub {
+  return unless -f $_[0];
+  my @parts = split(/\./,$_[0]->basename);
+  my $ext = pop @parts;
+  my $filename = $_[0]->stringify;
+  p($filename);
+  if ($ext eq 'db') {
+    my $sqlite = RisingWorld::DB->connect(
+      'dbi:SQLite:dbname='.$filename,"","",{
+        AutoCommit => 1,
+        RaiseError => 1,
+        quote_char => '"',
+        name_sep   => '.',
+      }
+    );
+    my $sth = $sqlite->storage->dbh->prepare("select name from sqlite_master where type='table';");
+    $sth->execute();
+    my $tables = $sth->fetchall_arrayref();
+    for my $table_row (@{$tables}) {
+      my $table = $table_row->[0];
+      next if $table =~ /^sqlite_/;
+      next if $table eq 'Worldparts';
+      my $rs_name = $mapping{$table};
+      croak "Unknown table ".$table." found" unless $rs_name;
+      my $rs = $sqlite->resultset($rs_name)->search({},{
+        result_class => 'DBIx::Class::ResultClass::HashRefInflator'
+      });
+      p($rs_name);
+      while (my $hashref = $rs->next) {
+        print ".";
+        $target->resultset($rs_name)->create($hashref);
+      }
+      print "\n";
+    }
+  }
+},{
+  recurse => 1
+});
+
