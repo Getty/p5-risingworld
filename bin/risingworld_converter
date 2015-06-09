@@ -1,16 +1,16 @@
 #!/usr/bin/env perl
+# PODNAME: risingworld_converter
+# ABSTRACT: Perl version of the converter.jar to convert SQLite to MySQL (tested with Version 19)
 
 use strict;
 use warnings;
 use Path::Tiny;
 use Carp qw( croak );
-use DDP;
 use RisingWorld::DB;
 
 my ( $dir, $connect, $user, $pass, $db ) = @ARGV;
 
 croak "Can't find directory ".$dir unless -d $dir;
-
 croak "Missing connect infos" unless $connect && $user && $db;
 
 my ( $ip, $port ) = split(':',$connect);
@@ -47,7 +47,7 @@ path($dir)->visit(sub {
   my @parts = split(/\./,$_[0]->basename);
   my $ext = pop @parts;
   my $filename = $_[0]->stringify;
-  p($filename);
+  print "=== Working on SQLite file: ".$filename."\n";
   if ($ext eq 'db') {
     my $sqlite = RisingWorld::DB->connect(
       'dbi:SQLite:dbname='.$filename,"","",{
@@ -66,10 +66,10 @@ path($dir)->visit(sub {
       next if $table eq 'Worldparts';
       my $rs_name = $mapping{$table};
       croak "Unknown table ".$table." found" unless $rs_name;
+      print "= Importing Table ".$table.":\n";
       my $rs = $sqlite->resultset($rs_name)->search({},{
         result_class => 'DBIx::Class::ResultClass::HashRefInflator'
       });
-      p($rs_name);
       while (my $hashref = $rs->next) {
         print ".";
         $target->resultset($rs_name)->create($hashref);
