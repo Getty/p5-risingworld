@@ -1,0 +1,72 @@
+#!/usr/bin/env perl
+# PODNAME: risingworld_chunks
+# ABSTRACT: Generate a JSON of all (World)Chunk X/(Y/)Z coordinates
+
+use strict;
+use warnings;
+
+use FindBin;
+use lib $FindBin::Dir . "/../lib";
+
+use Path::Tiny;
+use Carp qw( croak );
+use JSON::MaybeXS;
+use RisingWorld::DB;
+
+my ( $dbi, $user, $pass ) = @ARGV;
+
+croak "Missing connect infos" unless $dbi && $user;
+
+my $sqlite = ( $dbi =~ /SQLite/ ) ? 1 : 0;
+
+my $db = RisingWorld::DB->connect( $dbi, $user, $pass, {
+  AutoCommit => 1,
+  RaiseError => 1,
+  quote_char => $sqlite ? '"' : '`',
+  name_sep   => '.',
+});
+
+
+my @chunks;
+
+{
+  my @chunks_results = $db->resultset('Chunk')->search(undef,{
+    columns => [qw/ x y z /],
+    order_by => [qw/ x z y /]
+  })->all;
+
+  for (@chunks_results) {
+    push @chunks, [ $_->x+0, $_->y+0, $_->z+0 ];
+  }
+}
+
+# my @lods;
+
+# {
+#   my @lods_results = $db->resultset('Lodchunk')->search(undef,{
+#     columns => [qw/ x z /],
+#     order_by => [qw/ x z /]
+#   })->all;
+
+#   for (@lods_results) {
+#     push @lods, [ $_->x+0, $_->z+0 ];
+#   }
+# }
+
+my @wchunks;
+
+{
+  my @wchunks_results = $db->resultset('Worldchunk')->search(undef,{
+    columns => [qw/ x z /],
+    order_by => [qw/ x z /]
+  })->all;
+
+  for (@wchunks_results) {
+    push @wchunks, [ $_->x+0, $_->z+0 ];
+  }
+}
+
+print encode_json({
+  Chunks => \@chunks,
+  Worldchunks => \@wchunks,
+});

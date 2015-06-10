@@ -4,6 +4,10 @@
 
 use strict;
 use warnings;
+
+use FindBin;
+use lib $FindBin::Dir . "/../lib";
+
 use Path::Tiny;
 use Carp qw( croak );
 use RisingWorld::DB;
