@@ -93,7 +93,7 @@ $.getJSON( "data.json", function(data) {
     var cur = wp++;
     widx[x][y][z] = cur;
     wpos.push(x);
-    wpos.push(y);
+    wpos.push(y * 2);
     wpos.push(z);
     if (z+1 in widx[x][y]) {
       windices.push(cur,widx[x][y][z+1]);
@@ -115,16 +115,16 @@ $.getJSON( "data.json", function(data) {
 
 
   SceneJS.setConfigs({
-    pluginPath: "scenejsplugins"
+    pluginPath: "scenejs"
   });
 
   SceneJS.createScene({
     nodes: [{
       type: "cameras/pickFlyOrbit",
-      yaw: 30,
-      pitch: -30,
-      zoom: 30,
-      zoomSensitivity: 5.0,
+      yaw: 90,
+      pitch: -45,
+      zoom: 75,
+      zoomSensitivity: 20.0,
       nodes: [{
         type: "material",
         color: { r:1, g:0, b:0 },

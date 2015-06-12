@@ -19,13 +19,12 @@ croak "Missing connect infos" unless $dbi && $user;
 
 my $sqlite = ( $dbi =~ /SQLite/ ) ? 1 : 0;
 
-my $db = RisingWorld::DB->connect( $dbi, $user, $pass, {
+my $db = RisingWorld::DB->connect( 'dbi:'.$dbi, $user, $pass, {
   AutoCommit => 1,
   RaiseError => 1,
   quote_char => $sqlite ? '"' : '`',
   name_sep   => '.',
 });
-
 
 my @chunks;
 

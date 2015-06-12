@@ -1,3 +1,4 @@
 RisingWorld-*
 .build
 sample
+*.log
