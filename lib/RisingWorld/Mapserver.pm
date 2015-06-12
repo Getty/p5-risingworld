@@ -9,7 +9,7 @@ use POE qw(
   Component::Server::HTTPServer
   Component::Server::HTTPServer::Handler
   Component::Server::HTTPServer::StaticHandler
-  Filter::JSON::Incr
+  Filter::JSONMaybeXS
   Wheel::FollowTail
 );
 
@@ -130,7 +130,7 @@ has tail_session => (
         _start => sub {
           $_[HEAP]{tailor} = POE::Wheel::FollowTail->new(
             Filename => $self->eventlog,
-            Filter => POE::Filter::JSON::Incr->new(),
+            Filter => POE::Filter::JSONMaybeXS->new(),
             InputEvent => "got_event",
             ResetEvent => "got_eventlog_rollover",
           );
@@ -192,12 +192,14 @@ option eventlog => (
 
 sub got_event {
   my ( $self, $event ) = @_;
-  use DDP; p($event);
+  $self->send_to_all($event);
 }
 
 sub send_to_all {
   my ( $self, $message ) = @_;
-  my $bytes = Protocol::WebSocket::Frame->new($message)->to_bytes;
+  use DDP; p($message);
+  my $json = encode_json($message);
+  my $bytes = Protocol::WebSocket::Frame->new($json)->to_bytes;
   for my $conn (values %{$self->_ws_conns}) {
     if ($conn) {
       $conn->put($bytes);
