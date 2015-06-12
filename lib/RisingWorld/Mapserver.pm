@@ -125,12 +125,17 @@ has tail_session => (
   default => sub {
     my ( $self ) = @_;
     return undef unless $self->has_eventlog;
+    my $filter = POE::Filter::Stackable->new();
+    $filter->push(
+      POE::Filter::JSONMaybeXS->new(),
+      POE::Filter::Line->new(),
+    );
     POE::Session->create(
       inline_states => {
         _start => sub {
           $_[HEAP]{tailor} = POE::Wheel::FollowTail->new(
             Filename => $self->eventlog,
-            Filter => POE::Filter::JSONMaybeXS->new(),
+            Filter => $filter,
             InputEvent => "got_event",
             ResetEvent => "got_eventlog_rollover",
           );
