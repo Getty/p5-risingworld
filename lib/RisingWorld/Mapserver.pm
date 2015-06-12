@@ -129,8 +129,8 @@ has tail_session => (
     return undef unless $self->has_eventlog;
     my $filter = POE::Filter::Stackable->new();
     $filter->push(
-      POE::Filter::JSONMaybeXS->new(),
       POE::Filter::Line->new(),
+      POE::Filter::JSONMaybeXS->new(),
     );
     POE::Session->create(
       inline_states => {
@@ -204,7 +204,6 @@ sub got_event {
 
 sub send_to_all {
   my ( $self, $message ) = @_;
-  use DDP; p($message);
   my $json = encode_json($message);
   my $bytes = Protocol::WebSocket::Frame->new($json)->to_bytes;
   for my $conn (values %{$self->_ws_conns}) {
