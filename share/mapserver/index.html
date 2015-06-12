@@ -20,14 +20,13 @@
   <script src="jquery.gracefulWebSocket.js"></script>
 <body>
 
-<div id="reload">Reload</div>
-
 <script>
 
 var ws = $.gracefulWebSocket("ws://" + window.location.hostname + ":4288/");
 
 ws.onmessage = function (event) {
-  console.log(event.data);
+  var data = $.parseJSON(event.data);
+  console.log(data);
 };
 
 function update_scene() {
