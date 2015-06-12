@@ -10,6 +10,8 @@ use POE qw(
   Component::Server::HTTPServer::Handler
   Component::Server::HTTPServer::StaticHandler
   Filter::JSONMaybeXS
+  Filter::Line
+  Filter::Stackable
   Wheel::FollowTail
 );
 

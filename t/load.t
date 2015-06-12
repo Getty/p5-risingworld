@@ -6,7 +6,6 @@ use Test::More;
 for (qw(
   RisingWorld
   RisingWorld::DB
-  RisingWorld::DB::Result
   RisingWorld::DB::Result::GrowingPlant
   RisingWorld::DB::Result::Chunk
   RisingWorld::DB::Result::Chest
