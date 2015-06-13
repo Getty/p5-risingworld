@@ -23,6 +23,7 @@ use File::ShareDir::ProjectDistDir;
 use Path::Tiny;
 use JSON::MaybeXS;
 use HTTP::Status;
+use Data::Dumper;
 
 use RisingWorld::DB;
 
@@ -204,7 +205,14 @@ sub got_event {
 
 sub send_to_all {
   my ( $self, $message ) = @_;
-  my $json = encode_json($message);
+  my $json;
+  eval {
+    $json = encode_json($message);    
+  };
+  if ($@) {
+    warn "Error on encode of message (".(Dumper $message)."): ".$@;
+    return;
+  }
   my $bytes = Protocol::WebSocket::Frame->new($json)->to_bytes;
   for my $conn (values %{$self->_ws_conns}) {
     if ($conn) {
