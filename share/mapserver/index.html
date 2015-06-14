@@ -101,7 +101,7 @@ function update_scene() {
       var cur = wp++;
       widx[x][y][z] = cur;
       wpos.push(x);
-      wpos.push(y * 2);
+      wpos.push(y * 4);
       wpos.push(z);
       if (z+1 in widx[x][y]) {
         windices.push(cur,widx[x][y][z+1]);
