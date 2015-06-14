@@ -53,7 +53,7 @@ function update_scene() {
       var cur = p++;
       cidx[x][y][z] = cur;
       pos.push(x);
-      pos.push(y);
+      pos.push(y * 4);
       pos.push(z);
       if (z+1 in cidx[x][y]) {
         indices.push(cur,cidx[x][y][z+1]);
@@ -101,7 +101,7 @@ function update_scene() {
       var cur = wp++;
       widx[x][y][z] = cur;
       wpos.push(x);
-      wpos.push(y * 4);
+      wpos.push(y);
       wpos.push(z);
       if (z+1 in widx[x][y]) {
         windices.push(cur,widx[x][y][z+1]);
