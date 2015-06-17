@@ -161,9 +161,9 @@ function update_scene() {
 
 if (scene) {
     console.log("Scene defined");
-    scene.getNode("cam",
-    function(cam) {
-          cam.getNode("worldchunks").destroy();
+    scene.getNode("worldchunks",
+    function(worldchunks) {
+          worldchunks.destroy();
     });
    };
 
