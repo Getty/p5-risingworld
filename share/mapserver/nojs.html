@@ -23,8 +23,6 @@
 <script>
 var ws = $.gracefulWebSocket("ws://" + window.location.hostname + ":4288/");
 var scene;
-
-
 ws.onmessage = function (event) {
   var data = $.parseJSON(event.data);
   console.log(data);
@@ -126,18 +124,21 @@ function update_scene() {
       pluginPath: "scenejs"
     });
 
-   scene = SceneJS.createScene({
+    scene = SceneJS.createScene({
       transparent: true,
       nodes: [{
+        id: "cam",
         type: "cameras/pickFlyOrbit",
+        showCursor: true,
         yaw: 90,
         pitch: -45,
         zoom: 75,
         zoomSensitivity: 20.0,
-        nodes: [{
+        nodes: [{          
           type: "material",
           color: { r:1, g:0, b:0 },
           nodes: [{
+            id: "chunks",
             type: "geometry",
             primitive: "lines",
             positions: pos,
@@ -147,6 +148,7 @@ function update_scene() {
           type: "material",
           color: { r:0, g:1, b:0 },
           nodes: [{
+            id: "Worldchunks",
             type: "geometry",
             primitive: "lines",
             positions: wpos,
@@ -155,13 +157,21 @@ function update_scene() {
         }]
       }]
     });
-   if (scene) {console.log("Scene defined")};
+
+
+if (scene) {
+    console.log("Scene defined");
+    scene.getNode("cam",
+    function(cam) {
+      console.log("Got Cam");
+    });
+   };
+
 
   });
 }
 
 update_scene();
-if (scene) {console.log("Scene defined 2")};
 </script>
 </body>
 </html>
