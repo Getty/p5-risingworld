@@ -155,35 +155,12 @@ function update_scene() {
             indices: windices
           }]        
         },{
-                        type: "scale",
-                        id: "__sphereSize",
-                        x: 1,
-                        y: 1,
-                        z: 1,
-                        nodes: [
-                            {
-                                type: "material",
-                                color: { r: 0.4, g: 1.0, b: 0.4 },
-                                specularColor: { r: 1.0, g: 1.0, b: 1.0 },
-                                emit: 0.2,
-                                nodes: [
-                                    {
-                                        type: "style",
-                                        lineWidth: 2,
-                                        nodes: [
-
-                                            // Sphere primitive implemented by plugin at
-                                            // http://scenejs.org/api/latest/plugins/node/geometry/sphere.js
-                                            {
-                                                type: "geometry/sphere",
-                                                positions: { x: 1, y: 3, z: 5 }
-                                            }
-                                        ]
-                                    }
-                                ]
-                            }
-                        ]
-                    }]
+       type: "geometry/sphere",
+       latitudeBands: 30, // Default
+       longitudeBands: 30, // Default
+       radius: 1, // Default
+       wire: false // Default
+   }]
       }]
     });
 
