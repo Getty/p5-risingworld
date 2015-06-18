@@ -165,7 +165,6 @@ function update_scene() {
                                 type: "material",
                                 color: { r: 0.4, g: 1.0, b: 0.4 },
                                 specularColor: { r: 1.0, g: 1.0, b: 1.0 },
-                                positions: { x: 1, y: 3, z: 5 },
                                 emit: 0.2,
                                 nodes: [
                                     {
@@ -176,7 +175,8 @@ function update_scene() {
                                             // Sphere primitive implemented by plugin at
                                             // http://scenejs.org/api/latest/plugins/node/geometry/sphere.js
                                             {
-                                                type: "geometry/sphere"
+                                                type: "geometry/sphere",
+                                                positions: { x: 1, y: 3, z: 5 }
                                             }
                                         ]
                                     }
