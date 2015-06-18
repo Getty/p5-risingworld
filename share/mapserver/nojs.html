@@ -129,7 +129,7 @@ function update_scene() {
       nodes: [{
         id: "cam",
         type: "cameras/pickFlyOrbit",
-        showCursor: true,
+        //showCursor: true,
         yaw: 90,
         pitch: -45,
         zoom: 75,
@@ -154,7 +154,35 @@ function update_scene() {
             positions: wpos,
             indices: windices
           }]        
-        }]
+        },{
+                        type: "scale",
+                        id: "__sphereSize",
+                        x: 1,
+                        y: 1,
+                        z: 1,
+                        nodes: [
+                            {
+                                type: "material",
+                                color: { r: 0.4, g: 1.0, b: 0.4 },
+                                specularColor: { r: 1.0, g: 1.0, b: 1.0 },
+                                emit: 0.2,
+                                nodes: [
+                                    {
+                                        type: "style",
+                                        lineWidth: 2,
+                                        nodes: [
+
+                                            // Sphere primitive implemented by plugin at
+                                            // http://scenejs.org/api/latest/plugins/node/geometry/sphere.js
+                                            {
+                                                type: "geometry/sphere"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }]
       }]
     });
 
@@ -163,7 +191,7 @@ if (scene) {
     console.log("Scene defined");
     scene.getNode("cam",
     function(cam) {
-          cam.removeNodes();
+          //cam.removeNodes();
      });
    };
 
