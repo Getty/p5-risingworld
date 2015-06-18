@@ -26,7 +26,25 @@ var scene;
 ws.onmessage = function (event) {
   var data = $.parseJSON(event.data);
   console.log(data);
+  if (data.EventName == "PlayerEnterChunk") {
+        console.log(data.newChunk.x);
+        if (scene) {
+    console.log("Scene defined");
+    scene.getNode("newTranslate",
+        function(newTranslate) {
+            newTranslate.set({
+              y: data.newChunk.y * 4,
+              x: data.newChunk.x,
+              z: data.newChunk.z
+           });
+
+
+        });
+   };
+
+}
 };
+
 
 function update_scene() {
 
@@ -174,27 +192,6 @@ function update_scene() {
       
     });
 
-
-if (scene) {
-    console.log("Scene defined");
-    scene.getNode("newTranslate",
-        function(newTranslate) {
-          var newY = 0;
-          scene.on("tick",
-          function() {
-            newY -= 0.1;
-            newTranslate.set({
-              y: newY
-           });
-
-          });
-
-        });
-    //scene.getNode("cam",
-    //function(cam) {
-          //cam.removeNodes();
-    // });
-   };
 
 
 
