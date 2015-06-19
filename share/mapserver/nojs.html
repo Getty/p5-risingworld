@@ -23,6 +23,7 @@
 <script>
 var ws = $.gracefulWebSocket("ws://" + window.location.hostname + ":4288/");
 var scene;
+var players = {};
 ws.onmessage = function (event) {
   var data = $.parseJSON(event.data);
   console.log(data);
@@ -195,15 +196,12 @@ function update_scene() {
             indices: windices
           }]        
         },{
-          type: "lookAt",
-          nodes: [{
             type: "name",
             name: "noname",
             id: "attachme",
             // A plugin node type is responsible for attaching specified
             // child nodes within itself
             nodes: []
-          }]
         }
 
 //        {
