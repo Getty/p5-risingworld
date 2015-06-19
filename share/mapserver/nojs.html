@@ -42,9 +42,31 @@ ws.onmessage = function (event) {
         });
    };
 
+} else if (data.EventName == "PlayerConnect") {
+    players[data.player.name] = {
+        type: "translate",
+        id: data.player.name + "_sphereTranslate",
+        x: 0,
+        y: 0,
+        z: 0,
+        nodes: [{
+            type: "geometry/sphere",
+            id: data.player.name + "_sphere",
+            latitudeBands: 30, // Default
+            longitudeBands: 30, // Default
+            radius: 0.5, // Default
+            wire: false // Default
+        }]
+    };
+    if (scene) {
+        scene.getNode("attachme", function(cam) {
+            cam.addNode(players[data.player.name]);
+        });
+    }
+} else if (data.EventName == "PlayerDisconnect") {
 }
-};
 
+};
 
 function update_scene() {
 
@@ -173,20 +195,32 @@ function update_scene() {
             indices: windices
           }]        
         },{
-          type: "translate",
-          id: "newTranslate",
-          x: 0,
-          y: 1.5,
-          z: 0,
+          type: "lookAt",
           nodes: [{
-            type: "geometry/sphere",
-            latitudeBands: 30, // Default
-            longitudeBands: 30, // Default
-            radius: 1, // Default
-            wire: false // Default
-            }]
-          
-        }]
+            type: "name",
+            name: "noname",
+            id: "attachme",
+            // A plugin node type is responsible for attaching specified
+            // child nodes within itself
+            nodes: []
+          }]
+        }
+
+//        {
+//          type: "translate",
+//          id: "newTranslate",
+//          x: 0,
+//          y: 1.5,
+//          z: 0,
+//          nodes: [{
+//            type: "geometry/sphere",
+//            latitudeBands: 30, // Default
+//            longitudeBands: 30, // Default
+//            radius: 1, // Default
+//          wire: false // Default
+//            }]
+//        }
+        ]
         
       }]
       
