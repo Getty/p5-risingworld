@@ -24,6 +24,42 @@
 var ws = $.gracefulWebSocket("ws://" + window.location.hostname + ":4288/");
 var scene;
 var players = {};
+nextColor = 0;
+var colors = [
+{r: 0.1, g: 0.1, b: 0.1},
+{r: 0.1, g: 0.1, b: 0.2},
+{r: 0.1, g: 0.2, b: 0.1},
+{r: 0.2, g: 0.1, b: 0.1},
+
+{r: 0.1, g: 0.1, b: 0.3},
+{r: 0.1, g: 0.3, b: 0.1},
+{r: 0.3, g: 0.1, b: 0.1},
+
+{r: 0.1, g: 0.1, b: 0.4},
+{r: 0.1, g: 0.4, b: 0.1},
+{r: 0.4, g: 0.1, b: 0.1},
+
+{r: 0.1, g: 0.1, b: 0.5},
+{r: 0.1, g: 0.5, b: 0.1},
+{r: 0.5, g: 0.1, b: 0.1},
+
+{r: 0.1, g: 0.1, b: 0.6},
+{r: 0.1, g: 0.6, b: 0.1},
+{r: 0.6, g: 0.1, b: 0.1},
+
+{r: 0.1, g: 0.1, b: 0.7},
+{r: 0.1, g: 0.7, b: 0.1},
+{r: 0.7, g: 0.1, b: 0.1},
+
+{r: 0.1, g: 0.1, b: 0.8},
+{r: 0.1, g: 0.8, b: 0.1},
+{r: 0.8, g: 0.1, b: 0.1},
+
+{r: 0.1, g: 0.1, b: 0.9},
+{r: 0.1, g: 0.9, b: 0.1},
+{r: 0.9, g: 0.1, b: 0.1}
+
+             ];
 ws.onmessage = function (event) {
   var data = $.parseJSON(event.data);
   console.log(data);
@@ -31,19 +67,14 @@ ws.onmessage = function (event) {
         console.log(data.newChunk.x);
         if (scene) {
     console.log("Scene defined");
-    scene.getNode("newTranslate",
-        function(newTranslate) {
-            newTranslate.set({
-              y: data.newChunk.y * 4,
-              x: data.newChunk.x,
-              z: data.newChunk.z
-           });
-
-
-        });
-   };
-
-} else if (data.EventName == "PlayerConnect") {
+    var sphereNode = scene.getNode(data.player.name + "_sphereTranslate");
+    if (!sphereNode) {
+        var color = colors[nextColor];
+    if (nextColor == colors.length) {
+        nextColor = 0;
+        } else {
+nextColor++;
+}
     players[data.player.name] = {
         type: "translate",
         id: data.player.name + "_sphereTranslate",
@@ -51,6 +82,14 @@ ws.onmessage = function (event) {
         y: 0,
         z: 0,
         nodes: [{
+                                type: "material",
+                                color: color,
+                                specularColor: { r: 1.0, g: 1.0, b: 1.0 },
+                                nodes: [
+                                    {
+                                        type: "style",
+                                        lineWidth: 2,
+                                        nodes: [{
             type: "geometry/sphere",
             id: data.player.name + "_sphere",
             latitudeBands: 30, // Default
@@ -58,9 +97,61 @@ ws.onmessage = function (event) {
             radius: 0.5, // Default
             wire: false // Default
         }]
-    };
+}]
+    }]
+};
     if (scene) {
-        scene.getNode("cam", function(cam) {
+        scene.getNode("attachme", function(cam) {
+            cam.addNode(players[data.player.name]);
+        });
+    }
+
+    }
+    scene.getNode(data.player.name + "_sphereTranslate",
+        function(newTranslate) {
+            newTranslate.set({
+              y: data.newChunk.y * 4,
+              x: data.newChunk.x,
+              z: data.newChunk.z
+           });
+
+        });
+   };
+
+} else if (data.EventName == "PlayerConnect") {
+    var color = colors[nextColor];
+    if (nextColor == colors.length) {
+        nextColor = 0;
+        } else {
+nextColor++;
+}
+    players[data.player.name] = {
+        type: "translate",
+        id: data.player.name + "_sphereTranslate",
+        x: 0,
+        y: 0,
+        z: 0,
+        nodes: [{
+                                type: "material",
+                                color: color,
+                                specularColor: { r: 1.0, g: 1.0, b: 1.0 },
+                                nodes: [
+                                    {
+                                        type: "style",
+                                        lineWidth: 2,
+                                        nodes: [{
+            type: "geometry/sphere",
+            id: data.player.name + "_sphere",
+            latitudeBands: 30, // Default
+            longitudeBands: 30, // Default
+            radius: 0.5, // Default
+            wire: false // Default
+        }]
+}]
+    }]
+};
+    if (scene) {
+        scene.getNode("attachme", function(cam) {
             cam.addNode(players[data.player.name]);
         });
     }
@@ -175,7 +266,7 @@ function update_scene() {
         pitch: -45,
         zoom: 75,
         zoomSensitivity: 20.0,
-        nodes: [{          
+        nodes: [{
           type: "material",
           color: { r:1, g:0, b:0 },
           nodes: [{
@@ -194,7 +285,9 @@ function update_scene() {
             primitive: "lines",
             positions: wpos,
             indices: windices
-          }]        
+          }]
+        },{
+            id: "attachme"
         }
 
 //        {
@@ -212,9 +305,9 @@ function update_scene() {
 //            }]
 //        }
         ]
-        
+
       }]
-      
+
     });
 
 
