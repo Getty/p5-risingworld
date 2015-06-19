@@ -60,7 +60,7 @@ ws.onmessage = function (event) {
         }]
     };
     if (scene) {
-        scene.getNode("attachme", function(cam) {
+        scene.getNode("cam", function(cam) {
             cam.addNode(players[data.player.name]);
         });
     }
@@ -195,13 +195,6 @@ function update_scene() {
             positions: wpos,
             indices: windices
           }]        
-        },{
-            type: "name",
-            name: "noname",
-            id: "attachme",
-            // A plugin node type is responsible for attaching specified
-            // child nodes within itself
-            nodes: []
         }
 
 //        {
