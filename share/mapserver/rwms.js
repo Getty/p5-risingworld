@@ -44,6 +44,8 @@ var RwMapServerPlayer = Class.extend({
         }]
       }]
     });
+    // shouldnt be required, but it is.... hmpf
+    self.update();
   },
 
   update: function(player){
