@@ -24,6 +24,7 @@
 var ws = $.gracefulWebSocket("ws://" + window.location.hostname + ":4288/");
 var scene;
 var labelY = 0;
+var labels = {};
 var players = {};
 nextColor = 0;
 var colors = [
@@ -75,18 +76,12 @@ function createLabel(t,c,posx,posy) {
             style.width = "auto";
             div.innerHTML += 'Foo';
             body.appendChild(div);
- 
-                    style.left = "" + 0 + "px";
-                    style.top = "" + posy + "px";
-
-         
-                    text = t;
-                    div.innerHTML = "<span>" + text + "</span>";
-
-                
-         
-                  style.background=c;
-    
+            style.left = "" + 0 + "px";
+            style.top = "" + posy + "px";
+            text = t;
+            div.innerHTML = "<span>" + text + "</span>";
+            style.background=c;
+            labels[t] = {posy,div};    
   };
 function createPlayerIfNotExists(data) {
   if (scene) {
@@ -165,7 +160,9 @@ ws.onmessage = function (event) {
 } else if (data.EventName == "PlayerDisconnect") {
   if (scene) {
     if (scene.getNode(data.player.name + "_sphereTranslate")) {
-      scene.getNode(data.player.name + "_sphereTranslate").destroy();
+      var destroyNode = scene.getNode(data.player.name + "_sphereTranslate");
+      labels.remove(data.player.name);
+      destroyNode.destroy();
       document.getElementById(data.player.name + "_div").remove();
     }
   }
