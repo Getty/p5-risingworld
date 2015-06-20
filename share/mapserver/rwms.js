@@ -25,7 +25,6 @@ var RwMapServerPlayer = Class.extend({
     self.z = player.chunkPosition.z;
     self.node = self.cam_node.addNode({
       type: "translate",
-      // id: "player" + self.player_id + "_sphereTranslate",
       x: self.x,
       y: self.y,
       z: self.z,
@@ -38,7 +37,6 @@ var RwMapServerPlayer = Class.extend({
           lineWidth: 2,
           nodes: [{
             type: "geometry/sphere",
-            // id: "player" + self.player_id + "_sphere",
             latitudeBands: 30, // Default
             longitudeBands: 30, // Default
             radius: 0.5, // Default
@@ -88,6 +86,7 @@ var RwMapServer = Class.extend({
       var data = $.parseJSON(event.data);
       self.on_event(data);
     };
+    self.cam_node_id = 'RwMapServer' + Date.now();
     self.players = {};
     self.setup_scene();
   },
@@ -97,19 +96,16 @@ var RwMapServer = Class.extend({
     self.scene = SceneJS.createScene({
       transparent: true,
       nodes: [{
-        id: "cam",
         type: "cameras/pickFlyOrbit",
         //showCursor: true,
         yaw: 90,
         pitch: -45,
         zoom: 75,
         zoomSensitivity: 20.0,
-        nodes: [{
-          id: "insidecam"
-        }]
+        nodes: [{ id: self.cam_node_id }]
       }]
     });
-    self.scene.getNode("insidecam",function(node){
+    self.scene.getNode(self.cam_node_id,function(node){
       self.cam_node = node;
       self.load_environment();
     });
@@ -150,7 +146,7 @@ var RwMapServer = Class.extend({
   on_playerevent: function(event) {
     var self = this;
     var player = event.player;
-    var eventname = event.name;
+    var eventname = event.EventName;
     if (eventname.match(/^PlayerEnterChunk$/)
       || eventname.match(/^PlayerTerrain/)) {
       self.load_environment();
