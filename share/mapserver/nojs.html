@@ -53,7 +53,7 @@ function createLabel(t,c,posx,posy) {
             var text;
             var body = document.getElementsByTagName("body")[0];
             var div = document.createElement('div');
-
+            div.setAttribute("id",t+"_div")
             var style = div.style;
             style.position = "absolute";
             style["font-family"] = "Helvetica";
@@ -164,7 +164,10 @@ ws.onmessage = function (event) {
     createPlayerIfNotExists(data);
 } else if (data.EventName == "PlayerDisconnect") {
   if (scene) {
-    scene.getNode(data.player.name + "_sphereTranslate").destroy();
+    if (scene.getNode(data.player.name + "_sphereTranslate")) {
+      scene.getNode(data.player.name + "_sphereTranslate").destroy();
+      document.getElementById(data.player.name + "_div").remove();
+    }
   }
 }
 
