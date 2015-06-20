@@ -18,147 +18,25 @@
   <script src="jquery.js"></script>
   <script src="jquery.gracefulWebSocket.js"></script>
   <script src="scenejs.js"></script>
+  <script src="class.js"></script>
+  <script src="rwms.js"></script>
 <body>
 
 <script>
 
-var ws = $.gracefulWebSocket("ws://" + window.location.hostname + ":4288/");
+SceneJS.setConfigs({
+  pluginPath: "scenejs"
+});
 
-ws.onmessage = function (event) {
-  var data = $.parseJSON(event.data);
-  console.log(data);
-};
+$(function(){
 
-function update_scene() {
+  // TODO: Port must be also coming from the Perl code
+  new RwMapServer(
+    "ws://" + window.location.hostname + ":4288/",
+    "data.json"
+  );
 
-  SceneJS.reset();
-
-  $.getJSON( "data.json", function(data) {
-
-    var cidx = {};
-    var pos = [];
-    var indices = [];
-    var p = 0;
-
-    $.each(data['Chunks'],function(i,c){
-      var x = c[0];
-      var y = c[1];
-      var z = c[2];
-      if (!cidx[x]) {
-        cidx[x] = {};
-      }
-      if (!cidx[x][y]) {
-        cidx[x][y] = {};
-      }
-      var cur = p++;
-      cidx[x][y][z] = cur;
-      pos.push(x);
-      pos.push(y * 4);
-      pos.push(z);
-      if (z+1 in cidx[x][y]) {
-        indices.push(cur,cidx[x][y][z+1]);
-      }
-      if (z-1 in cidx[x][y]) {
-        indices.push(cur,cidx[x][y][z-1]);
-      }
-      if (cidx[x+1] && cidx[x+1][y]) {
-        if (z in cidx[x+1][y]) {
-          indices.push(cur,cidx[x+1][y][z]);
-        }
-      }
-      if (cidx[x-1] && cidx[x-1][y]) {
-        if (z in cidx[x-1][y]) {
-          indices.push(cur,cidx[x-1][y][z]);
-        }
-      }
-      if (cidx[x][y+1]) {
-        if (z in cidx[x][y+1]) {
-          indices.push(cur,cidx[x][y+1][z]);
-        }
-      }
-      if (cidx[x][y-1]) {
-        if (z in cidx[x][y-1]) {
-          indices.push(cur,cidx[x][y-1][z]);
-        }
-      }
-    });
-
-    var widx = {};
-    var wpos = [];
-    var windices = [];
-    var wp = 0;
-
-    $.each(data['Worldchunks'],function(i,c){
-      var x = c[0];
-      var y = 0;
-      var z = c[1];
-      if (!widx[x]) {
-        widx[x] = {};
-      }
-      if (!widx[x][y]) {
-        widx[x][y] = {};
-      }
-      var cur = wp++;
-      widx[x][y][z] = cur;
-      wpos.push(x);
-      wpos.push(y);
-      wpos.push(z);
-      if (z+1 in widx[x][y]) {
-        windices.push(cur,widx[x][y][z+1]);
-      }
-      if (z-1 in widx[x][y]) {
-        windices.push(cur,widx[x][y][z-1]);
-      }
-      if (widx[x+1] && widx[x+1][y]) {
-        if (z in widx[x+1][y]) {
-          windices.push(cur,widx[x+1][y][z]);
-        }
-      }
-      if (widx[x-1] && widx[x-1][y]) {
-        if (z in widx[x-1][y]) {
-          windices.push(cur,widx[x-1][y][z]);
-        }
-      }
-    });
-
-    SceneJS.setConfigs({
-      pluginPath: "scenejs"
-    });
-
-    SceneJS.createScene({
-      transparent: true,
-      nodes: [{
-        type: "cameras/pickFlyOrbit",
-        yaw: 90,
-        pitch: -45,
-        zoom: 75,
-        zoomSensitivity: 20.0,
-        nodes: [{
-          type: "material",
-          color: { r:1, g:0, b:0 },
-          nodes: [{
-            type: "geometry",
-            primitive: "lines",
-            positions: pos,
-            indices: indices
-          }]
-        },{
-          type: "material",
-          color: { r:0, g:1, b:0 },
-          nodes: [{
-            type: "geometry",
-            primitive: "lines",
-            positions: wpos,
-            indices: windices
-          }]        
-        }]
-      }]
-    });
-
-  });
-}
-
-update_scene();
+});
 
 </script>
 </body>
