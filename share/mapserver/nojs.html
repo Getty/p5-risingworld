@@ -22,7 +22,33 @@
 
 <script>
 var ws = $.gracefulWebSocket("ws://" + window.location.hostname + ":4288/");
-
+var scene;
+var labelY = 0;
+var players = {};
+nextColor = 0;
+var colors = [
+              {r: 1.0, g: 1.0, b: 1.0}, //WHITE
+              {r: 0.75, g: 0.75, b: 0.75}, //SILVER
+          //    {r: 1.0, g: 0.0, b: 0.0}, //RED 
+              {r: 1.0, g: 1.0, b: 0.0}, //YELLOW
+          //    {r: 0.0, g: 1.0, b: 0.0}, //LIME
+              {r: 0.0, g: 1.0, b: 1.0}, //AQUA
+              {r: 0.0, g: 0.0, b: 1.0}, //BLUE
+              {r: 1.0, g: 0.0, b: 1.0}, //FUCHSIA
+              {r: 0.5, g: 0.0, b: 0.5} //PURPLE
+             ];
+var colorsHTML = [
+    "#FFFFFF",
+    "#C0C0C0",
+    //"#FF0000",
+    "#FFFF00",
+    //"#00FF00",
+    "#00FFFF",
+    "#0000FF",
+    "#FF00FF",
+    "#800080"
+  ];
+  
 function createLabel(text,color,posx,posy) {
             var text;
             var body = document.getElementsByTagName("body")[0];
@@ -62,42 +88,10 @@ function createLabel(text,color,posx,posy) {
          
                   style.background=c;
     
-        };
-
-var scene;
-var labelY = 0;
-var players = {};
-nextColor = 0;
-var colors = [
-              {r: 1.0, g: 1.0, b: 1.0}, //WHITE
-              {r: 0.75, g: 0.75, b: 0.75}, //SILVER
-          //    {r: 1.0, g: 0.0, b: 0.0}, //RED 
-              {r: 1.0, g: 1.0, b: 0.0}, //YELLOW
-          //    {r: 0.0, g: 1.0, b: 0.0}, //LIME
-              {r: 0.0, g: 1.0, b: 1.0}, //AQUA
-              {r: 0.0, g: 0.0, b: 1.0}, //BLUE
-              {r: 1.0, g: 0.0, b: 1.0}, //FUCHSIA
-              {r: 0.5, g: 0.0, b: 0.5} //PURPLE
-             ];
-var colorsHTML = [
-    "#FFFFFF",
-    "#C0C0C0",
-    //"#FF0000",
-    "#FFFF00",
-    //"#00FF00",
-    "#00FFFF",
-    "#0000FF",
-    "#FF00FF",
-    "#800080"
-  ];
-ws.onmessage = function (event) {
-  var data = $.parseJSON(event.data);
-  console.log(data);
-  if (data.EventName == "PlayerEnterChunk") {
-        console.log(data.newChunk.x);
-        if (scene) {
-          console.log("Scene defined");
-          var sphereNode = scene.getNode(data.player.name + "_sphereTranslate");
+  };
+function createPlayerIfNotExists(data) {
+  if (scene) {
+  var sphereNode = scene.getNode(data.player.name + "_sphereTranslate");
           if (!sphereNode) {
             var color = colors[nextColor];
             var colorHTML = colorsHTML[nextColor];
@@ -142,7 +136,21 @@ ws.onmessage = function (event) {
           createLabel(data.player.name,colorHTML,0,labelY);
           labelY = labelY + 5;
         }
-        scene.getNode(data.player.name + "_sphereTranslate",
+       
+  }
+          
+}
+
+
+ws.onmessage = function (event) {
+  var data = $.parseJSON(event.data);
+  console.log(data);
+  if (data.EventName == "PlayerEnterChunk") {
+        console.log(data.newChunk.x);
+        if (scene) {
+          console.log("Scene defined");
+          createPlayerIfNotExists(data);
+          scene.getNode(data.player.name + "_sphereTranslate",
           function(newTranslate) {
             newTranslate.set({
               y: data.newChunk.y * 4,
@@ -154,48 +162,7 @@ ws.onmessage = function (event) {
     };
 
 } else if (data.EventName == "PlayerConnect") {
-    var color = colors[nextColor];
-    if (nextColor == colors.length) {
-        nextColor = 0;
-    } else {
-      nextColor++;
-    }
-    players[data.player.name] = {
-        type: "translate",
-        id: data.player.name + "_sphereTranslate",
-        x: 0,
-        y: 0,
-        z: 0,
-        nodes: [
-          {
-              type: "material",
-              color: color,
-              specularColor: { r: 1.0, g: 1.0, b: 1.0 },
-              nodes: [
-                        {
-                          type: "style",
-                          lineWidth: 2,
-                          nodes: [
-                            {
-                              type: "geometry/sphere",
-                              id: data.player.name + "_sphere",
-                              latitudeBands: 30, // Default
-                              longitudeBands: 30, // Default
-                              radius: 0.5, // Default
-                              wire: false // Default
-                            }
-                          ]
-                        }
-                      ]
-            
-          }
-          ]
-    };
-    if (scene) {
-        scene.getNode("attachme", function(cam) {
-            cam.addNode(players[data.player.name]);
-        });
-    }
+    createPlayerIfNotExists(data);
 } else if (data.EventName == "PlayerDisconnect") {
   if (scene) {
     scene.getNode(data.player.name + "_sphereTranslate").destroy();
