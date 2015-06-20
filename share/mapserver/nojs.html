@@ -49,13 +49,12 @@ var colorsHTML = [
     "#800080"
   ];
   
-function createLabel(text,color,posx,posy) {
+function createLabel(t,c,posx,posy) {
             var text;
             var body = document.getElementsByTagName("body")[0];
             var div = document.createElement('div');
 
             var style = div.style;
-            style.display = "none";
             style.position = "absolute";
             style["font-family"] = "Helvetica";
             style["font-size"] = "14px";
@@ -77,8 +76,8 @@ function createLabel(text,color,posx,posy) {
             div.innerHTML += 'Foo';
             body.appendChild(div);
  
-                    style.left = "" + pos.x + "px";
-                    style.top = "" + pos.y + "px";
+                    style.left = "" + 0 + "px";
+                    style.top = "" + posy + "px";
 
          
                     text = t;
@@ -134,7 +133,7 @@ function createPlayerIfNotExists(data) {
             cam.addNode(players[data.player.name]);
           });
           createLabel(data.player.name,colorHTML,0,labelY);
-          labelY = labelY + 5;
+          labelY = labelY + 30;
         }
        
   }
