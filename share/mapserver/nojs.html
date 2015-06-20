@@ -22,20 +22,85 @@
 
 <script>
 var ws = $.gracefulWebSocket("ws://" + window.location.hostname + ":4288/");
+
+function createLabel(text,color,posx,posy) {
+            var text;
+            var body = document.getElementsByTagName("body")[0];
+            var div = document.createElement('div');
+
+            var style = div.style;
+            style.display = "none";
+            style.position = "absolute";
+            style["font-family"] = "Helvetica";
+            style["font-size"] = "14px";
+            style.padding = "5px";
+            style.margin = "4px";
+            style["padding-left"] = "12px";
+            style["border"] = "1px solid #000055";
+            style.color = "black";
+            style.background = "#AAFFAA";
+            style.opacity = "0.8";
+            style["border-radius"] = "3px";
+            style["z-index"] = 100000;
+            style["-moz-border-radius"] = "3px";
+            style["box-shadow"] = "3px 3px 3px #444444";
+            style.left = "0";
+            style.top = "0";
+            style.height = "auto";
+            style.width = "auto";
+            div.innerHTML += 'Foo';
+            body.appendChild(div);
+            return {
+
+                // Shows label, but only if text has been set
+                setShown: function (shown) {
+                    style.display = shown && text ? "" : "none";
+                },
+
+                // Sets canvas position of label
+                setPos: function (pos) {
+                    style.left = "" + pos.x + "px";
+                    style.top = "" + pos.y + "px";
+                },
+
+                // Sets text in label
+                setText: function (t) {
+                    text = t;
+                    div.innerHTML = "<span>" + text + "</span>";
+                }
+                
+                setColor: function(c) {
+                  style.background=c;
+                }
+            }
+        })();
+
 var scene;
+var labelY = 0;
 var players = {};
 nextColor = 0;
 var colors = [
               {r: 1.0, g: 1.0, b: 1.0}, //WHITE
               {r: 0.75, g: 0.75, b: 0.75}, //SILVER
-              {r: 1.0, g: 0.0, b: 0.0}, //RED 
+          //    {r: 1.0, g: 0.0, b: 0.0}, //RED 
               {r: 1.0, g: 1.0, b: 0.0}, //YELLOW
-              {r: 0.0, g: 1.0, b: 0.0}, //LIME
+          //    {r: 0.0, g: 1.0, b: 0.0}, //LIME
               {r: 0.0, g: 1.0, b: 1.0}, //AQUA
               {r: 0.0, g: 0.0, b: 1.0}, //BLUE
               {r: 1.0, g: 0.0, b: 1.0}, //FUCHSIA
               {r: 0.5, g: 0.0, b: 0.5} //PURPLE
              ];
+var colorsHTML = [
+    "#FFFFFF",
+    "#C0C0C0",
+    //"#FF0000",
+    "#FFFF00",
+    //"#00FF00",
+    "#00FFFF",
+    "#0000FF",
+    "#FF00FF",
+    "#800080"
+  ];
 ws.onmessage = function (event) {
   var data = $.parseJSON(event.data);
   console.log(data);
@@ -46,6 +111,7 @@ ws.onmessage = function (event) {
           var sphereNode = scene.getNode(data.player.name + "_sphereTranslate");
           if (!sphereNode) {
             var color = colors[nextColor];
+            var colorHTML = colorsHTML[nextColor];
             if (nextColor == colors.length) {
               nextColor = 0;
             } else {
@@ -84,6 +150,8 @@ ws.onmessage = function (event) {
           scene.getNode("attachme", function(cam) {
             cam.addNode(players[data.player.name]);
           });
+          createLabel(data.player.name,colorHTML,0,labelY);
+          labelY = labelY + 5;
         }
         scene.getNode(data.player.name + "_sphereTranslate",
           function(newTranslate) {
