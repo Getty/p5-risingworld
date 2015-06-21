@@ -12,9 +12,10 @@ var RwMapServerPlayer = Class.extend({
     '#800080', // Purple
   ],
 
-  init: function(cam_node,player,no){
+  init: function(cam_node, labels, player, no){
     var self = this;
     self.cam_node = cam_node;
+    self.labels = labels;
     self.player_id = player.DBID;
     self.name = player.name;
     self.color = self.colors[no % self.colors.length];
@@ -22,6 +23,25 @@ var RwMapServerPlayer = Class.extend({
     self.x = player.chunkPosition.x;
     self.y = player.chunkPosition.y;
     self.z = player.chunkPosition.z;
+    self.label = $('<div>' + self.name + '</div>');
+    self.label.css({
+      display: 'table-row'
+    });
+    var inner_label = $('<div>[' + self.name + ']</div>');
+    inner_label.css({
+      backgroundColor: self.color,
+      padding: "8px",
+      fontWeight: "bold",
+      fontFamily: "'Cabin', Helvetica, Arial, sans-serif",
+      marginBottom: "10px"
+    });
+    self.activity = $('<span/>');
+    self.activity.css({
+      paddingLeft: "5px"
+    });
+    self.activity.appendTo(inner_label);
+    inner_label.appendTo(self.label);
+    self.label.appendTo(self.labels);
     self.node = self.cam_node.addNode({
       type: "translate",
       x: self.x,
@@ -58,9 +78,15 @@ var RwMapServerPlayer = Class.extend({
     });
   },
 
+  set_activity: function(activity){
+    var self = this;
+    self.activity.text(activity);
+  },
+
   destroy: function(){
     var self = this;
     self.node.destroy();
+    self.label.remove();
   },
 
   hex2rgb: function(val){
@@ -76,7 +102,7 @@ var RwMapServerPlayer = Class.extend({
 
 var RwMapServer = Class.extend({
 
-  init: function(ws_url,environment_url){
+  init: function(ws_url, environment_url){
     var self = this;
     self.player_no = 0;
     self.environment_url = environment_url;
@@ -92,7 +118,7 @@ var RwMapServer = Class.extend({
 
   setup_scene: function() {
     var self = this;
-    self.scene = SceneJS.createScene({
+    var config = {
       transparent: true,
       nodes: [{
         type: "cameras/pickFlyOrbit",
@@ -103,11 +129,29 @@ var RwMapServer = Class.extend({
         zoomSensitivity: 20.0,
         nodes: [{ id: self.cam_node_id }]
       }]
-    });
+    };
+    self.scene = SceneJS.createScene(config);
     self.scene.getNode(self.cam_node_id,function(node){
       self.cam_node = node;
       self.load_environment();
     });
+    self.labels = $('<div/>');
+    self.labels.css({
+      paddingLeft: 10,
+      paddingTop: 10,
+      position: "absolute",
+      zIndex: 100000
+    });
+    self.labels.appendTo('body');
+  },
+
+  destroy: function(){
+    var self = this;
+    $.each(self.players,function(id,player){
+      player.destroy();
+    });
+    self.scene.destroy();
+    self.root.empty();
   },
 
   load_environment: function(){
@@ -133,7 +177,11 @@ var RwMapServer = Class.extend({
   },
 
   on_event: function(event) {
-    console.log(event.EventName, event);
+    if (event.player) {
+      console.log(event.player.name, event.EventName, event);
+    } else {
+      console.log(event.EventName, event);
+    }
     var self = this;
     if (self.cam_node) {
       if (event.player) {
@@ -165,10 +213,11 @@ var RwMapServer = Class.extend({
         }
       } else {
         self.players[player.DBID] = new RwMapServerPlayer(
-          self.cam_node, player, self.player_no
+          self.cam_node, self.labels, player, self.player_no
         );
         self.player_no = self.player_no + 1;
       }
+      self.players[player.DBID].set_activity(event.EventName);
     }
   },
 
