@@ -32,8 +32,7 @@ var RwMapServerPlayer = Class.extend({
       backgroundColor: self.color,
       padding: "8px",
       fontWeight: "bold",
-      fontFamily: "'Cabin', Helvetica, Arial, sans-serif",
-      marginBottom: "10px"
+      fontFamily: "'Cabin', Helvetica, Arial, sans-serif"
     });
     self.activity = $('<span/>');
     self.activity.css({
