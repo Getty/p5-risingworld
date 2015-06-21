@@ -6,7 +6,6 @@ var RwMapServerPlayer = Class.extend({
     '#FF00FF', // Fuchsia
     '#00FFFF', // Aqua
     '#FFFFFF', // White
-    '#800000', // Maroon
     '#808080', // Gray
     '#008080', // Teal
     '#800080', // Purple
