@@ -3,9 +3,9 @@ var RwMapServerPlayer = Class.extend({
 
   colors: [
     '#FFFF00', // Yellow
-    '#FFFFFF', // White
-    '#00FFFF', // Aqua
     '#FF00FF', // Fuchsia
+    '#00FFFF', // Aqua
+    '#FFFFFF', // White
     '#800000', // Maroon
     '#808080', // Gray
     '#008080', // Teal
@@ -44,15 +44,13 @@ var RwMapServerPlayer = Class.extend({
         }]
       }]
     });
-    // shouldnt be required, but it is.... hmpf
-    self.update(player);
   },
 
-  update: function(player){
+  update: function(chunkPosition){
     var self = this;
-    self.x = player.chunkPosition.x;
-    self.y = player.chunkPosition.y;
-    self.z = player.chunkPosition.z;
+    self.x = chunkPosition.x;
+    self.y = chunkPosition.y;
+    self.z = chunkPosition.z;
     self.node.set({
       x: self.x,
       y: self.y * 4,
@@ -135,7 +133,7 @@ var RwMapServer = Class.extend({
   },
 
   on_event: function(event) {
-    console.log(event);
+    console.log(event.EventName, event);
     var self = this;
     if (self.cam_node) {
       if (event.player) {
@@ -148,19 +146,29 @@ var RwMapServer = Class.extend({
     var self = this;
     var player = event.player;
     var eventname = event.EventName;
-    if (eventname.match(/^PlayerEnterChunk$/)
-      || eventname.match(/^PlayerTerrain/)) {
+    if ( eventname.match(/^PlayerEnterChunk$/)
+      || eventname.match(/^PlayerTerrain/)
+      || eventname.match(/^PlayerBlock/) ) {
       self.load_environment();
     }
-    if (self.players[player.DBID]) {
-      self.players[player.DBID].update(player);
+    if (eventname.match(/^PlayerDisconnect$/)) {
+      if (self.players[player.DBID]) {
+        self.players[player.DBID].destroy();
+        delete self.players[player.DBID];
+      }
     } else {
-      self.players[player.DBID] = new RwMapServerPlayer(
-        self.cam_node,
-        player,
-        self.player_no
-      );
-      self.player_no = self.player_no + 1;
+      if (self.players[player.DBID]) {
+        if (event.newChunk) {
+          self.players[player.DBID].update(event.newChunk);
+        } else {
+          self.players[player.DBID].update(player.chunkPosition);
+        }
+      } else {
+        self.players[player.DBID] = new RwMapServerPlayer(
+          self.cam_node, player, self.player_no
+        );
+        self.player_no = self.player_no + 1;
+      }
     }
   },
 
