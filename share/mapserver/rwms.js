@@ -139,6 +139,8 @@ var RwMapServer = Class.extend({
       paddingLeft: 10,
       paddingTop: 10,
       position: "absolute",
+      display: "table",
+      borderSpacing: "5px",
       zIndex: 100000
     });
     self.labels.appendTo('body');
