@@ -156,24 +156,28 @@ var RwMapServer = Class.extend({
 
   load_environment: function(){
     var self = this;
-    $.getJSON(self.environment_url,function(data){
-      if (self.chunks_node) {
-        self.chunks_node.destroy();
-      }
-      if (self.worldchunks_node) {
-        self.worldchunks_node.destroy();
-      }
-      self.chunks_node = self.cam_node.addNode({
-        type: "material",
-        color: { r:0.5, g:0, b:0 },
-        nodes: [self.chunks2node(data['Chunks'])]
+    if (!self.load_environment_inprogress) {
+      self.load_environment_inprogress = true;
+      $.getJSON(self.environment_url,function(data){
+        self.load_environment_inprogress = false;
+        if (self.chunks_node) {
+          self.chunks_node.destroy();
+        }
+        if (self.worldchunks_node) {
+          self.worldchunks_node.destroy();
+        }
+        self.chunks_node = self.cam_node.addNode({
+          type: "material",
+          color: { r:0.5, g:0, b:0 },
+          nodes: [self.chunks2node(data['Chunks'])]
+        });
+        self.worldchunks_node = self.cam_node.addNode({
+          type: "material",
+          color: { r:0, g:0.5, b:0 },
+          nodes: [self.worldchunks2node(data['Worldchunks'])]
+        });
       });
-      self.worldchunks_node = self.cam_node.addNode({
-        type: "material",
-        color: { r:0, g:0.5, b:0 },
-        nodes: [self.worldchunks2node(data['Worldchunks'])]
-      });
-    });
+    }
   },
 
   on_event: function(event) {
