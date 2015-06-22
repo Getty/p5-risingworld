@@ -71,7 +71,8 @@ var RwMapServerPlayer = Class.extend({
     self.z = chunkPosition.z;
     self.node.set({
       x: self.x,
-      y: self.y * 4,
+      // y: self.y * 4,
+      y: 0, // easier for position view
       z: self.z
     });
   },
