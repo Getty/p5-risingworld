@@ -64,17 +64,37 @@ var RwMapServerPlayer = Class.extend({
     });
   },
 
-  update: function(chunkPosition){
+ update: function(chunkPosition){
     var self = this;
     self.x = chunkPosition.x;
     self.y = chunkPosition.y;
     self.z = chunkPosition.z;
     self.node.set({
       x: self.x,
-      // y: self.y * 4,
-      y: 0, // easier for position view
+      y: self.y * 4,
       z: self.z
     });
+
+    if (self.line) {
+      self.line.destroy();
+    }
+    self.line = self.node.addNode(
+      
+    {
+        type: "material",
+        color: self.color_gl,
+        specularColor: { r: 1.0, g: 1.0, b: 1.0 },
+        nodes: [
+          {
+            type: "geometry",
+            primitive: "lines",
+            positions: [0,0,0,
+                        0,(self.y * 4) * -1,0],
+            indices: [0,1]
+          }
+        ]
+     }
+     );
   },
 
   set_activity: function(activity){
