@@ -22,7 +22,7 @@ var RwMapServerPlayer = Class.extend({
     self.x = player.chunkPosition.x;
     self.y = player.chunkPosition.y;
     self.z = player.chunkPosition.z;
-    self.label = $('<div>' + self.name + '</div>');
+    self.label = $('<div></div>');
     self.label.css({
       display: 'table-row'
     });
